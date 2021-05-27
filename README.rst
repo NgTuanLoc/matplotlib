@@ -3,14 +3,6 @@ Matplotlib - An Image Can Say A Thousand Words
 ===================
 
 
-------------------
-A big thank to Nicolas P. Rougier 
-------------------
-
-
-Original sources are available from
-`github <https://github.com/rougier/matplotlib-tutorial>`_
-
 
 Introduction
 ============
@@ -1539,3 +1531,11 @@ Miscellaneous
 
    * - terrain
      - .. image:: figures/cmap-terrain.png
+
+------------------
+A big thank to Nicolas P. Rougier 
+------------------
+
+Original sources are available from
+`github <https://github.com/rougier/matplotlib-tutorial>`_
+
