@@ -1,15 +1,33 @@
 ===================
-Matplotlib - An Image Can Say A Thousand Word
+Matplotlib tutorial
 ===================
 
 
 ------------------
-A big thank to Nicolas P. Rougier 
-
-Original sources are available from
-`github <https://github.com/rougier/matplotlib-tutorial>`_
+Nicolas P. Rougier
 ------------------
 
+.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.28747.svg
+   :target: http://dx.doi.org/10.5281/zenodo.28747
+
+.. contents:: Table of Contents
+   :local:
+   :depth: 1
+
+Sources are available from
+`github <https://github.com/rougier/matplotlib-tutorial>`_
+
+All code and material is licensed under a `Creative Commons
+Attribution-ShareAlike 4.0
+<http://creativecommons.org/licenses/by-sa/4.0>`_.
+
+You can test your installation before the tutorial using the `check-installation.py <scripts/check-installation.py>`_ script.
+
+See also:
+
+* `From Python to Numpy <http://www.labri.fr/perso/nrougier/from-python-to-numpy/>`_
+* `100 Numpy exercices <https://github.com/rougier/numpy-100>`_
+* `Ten simple rules for better figures <http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
 
 
 Introduction
@@ -506,6 +524,263 @@ especially tricky. Therefore, matplotlib provides special locators in
 matplotlib.dates.
 
 
+Animation
+=========
+
+For quite a long time, animation in matplotlib was not an easy task and was
+done mainly through clever hacks. However, things have started to change since
+version 1.1 and the introduction of tools for creating animation very
+intuitively, with the possibility to save them in all kind of formats (but don't
+expect to be able to run very complex animations at 60 fps though).
+
+.. admonition:: Documentation
+
+   *  See `Animation <http://matplotlib.org/api/animation_api.html>`_
+
+The most easy way to make an animation in matplotlib is to declare a
+FuncAnimation object that specifies to matplotlib what is the figure to
+update, what is the update function and what is the delay between frames.
+
+
+Drip drop
+---------
+
+A very simple rain effect can be obtained by having small growing rings
+randomly positioned over a figure. Of course, they won't grow forever since the
+wave is supposed to damp with time. To simulate that, we can use a more and
+more transparent color as the ring is growing, up to the point where it is no
+more visible. At this point, we remove the ring and create a new one.
+
+First step is to create a blank figure:
+
+.. code:: python
+
+   # New figure with white background
+   fig = plt.figure(figsize=(6,6), facecolor='white')
+
+   # New axis over the whole figure, no frame and a 1:1 aspect ratio
+   ax = fig.add_axes([0,0,1,1], frameon=False, aspect=1)
+
+   
+Next, we need to create several rings. For this, we can use the scatter plot
+object that is generally used to visualize points cloud, but we can also use it
+to draw rings by specifying we don't have a facecolor. We also have to take
+care of initial size and color for each ring such that we have all sizes between
+a minimum and a maximum size. In addition, we need to make sure the largest ring 
+is almost transparent.
+
+
+.. image:: figures/rain-static.png
+   :target: scripts/rain-static.py
+   :align: right
+
+
+.. code:: python
+
+   # Number of ring
+   n = 50
+   size_min = 50
+   size_max = 50*50
+          
+   # Ring position 
+   P = np.random.uniform(0,1,(n,2))
+
+   # Ring colors
+   C = np.ones((n,4)) * (0,0,0,1)
+   # Alpha color channel goes from 0 (transparent) to 1 (opaque)
+   C[:,3] = np.linspace(0,1,n)
+
+   # Ring sizes
+   S = np.linspace(size_min, size_max, n)
+
+   # Scatter plot
+   scat = ax.scatter(P[:,0], P[:,1], s=S, lw = 0.5,
+                     edgecolors = C, facecolors='None')
+
+   # Ensure limits are [0,1] and remove ticks
+   ax.set_xlim(0,1), ax.set_xticks([])
+   ax.set_ylim(0,1), ax.set_yticks([])
+
+
+Now, we need to write the update function for our animation. We know that at
+each time step each ring should grow and become more transparent while the 
+largest ring should be totally transparent and thus removed. Of course, we won't 
+actually remove the largest ring but re-use it to set a new ring at a new random
+position, with nominal size and color. Hence, we keep the number of rings
+constant.
+
+  
+.. image:: figures/rain.gif
+   :target: scripts/rain-dynamic.py
+   :align: right
+
+
+.. code:: python
+
+   def update(frame):
+       global P, C, S
+
+       # Every ring is made more transparent
+       C[:,3] = np.maximum(0, C[:,3] - 1.0/n)
+
+       # Each ring is made larger
+       S += (size_max - size_min) / n
+
+       # Reset ring specific ring (relative to frame number)
+       i = frame % 50
+       P[i] = np.random.uniform(0,1,2)
+       S[i] = size_min
+       C[i,3] = 1
+
+       # Update scatter object
+       scat.set_edgecolors(C)
+       scat.set_sizes(S)
+       scat.set_offsets(P)
+
+       # Return the modified object
+       return scat,
+
+Last step is to tell matplotlib to use this function as an update function for
+the animation and display the result or save it as a movie:
+
+
+.. code:: python
+
+   animation = FuncAnimation(fig, update, interval=10, blit=True, frames=200)
+   # animation.save('rain.gif', writer='imagemagick', fps=30, dpi=40)
+   plt.show()
+
+   
+   
+Earthquakes
+-----------
+
+We'll now use the rain animation to visualize earthquakes on the planet from
+the last 30 days. The USGS Earthquake Hazards Program is part of the National
+Earthquake Hazards Reduction Program (NEHRP) and provides several data on their
+`website <http://earthquake.usgs.gov>`_. Those data are sorted according to
+earthquakes magnitude, ranging from significant only down to all earthquakes,
+major or minor. You would be surprised by the number of minor earthquakes
+happening every hour on the planet. Since this would represent too much data
+for us, we'll stick to earthquakes with magnitude > 4.5. At the time of writing,
+this already represent more than 300 earthquakes in the last 30 days.
+
+
+First step is to read and convert data. We'll use the `urllib` library that
+allows us to open and read remote data. Data on the website use the `CSV` format
+whose content is given by the first line::
+
+  time,latitude,longitude,depth,mag,magType,nst,gap,dmin,rms,net,id,updated,place,type
+  2015-08-17T13:49:17.320Z,37.8365,-122.2321667,4.82,4.01,mw,...
+  2015-08-15T07:47:06.640Z,-10.9045,163.8766,6.35,6.6,mwp,...
+
+We are only interested in latitude, longitude and magnitude and we won't parse
+time of event (ok, that's bad, feel free to send me a PR).
+  
+
+.. code:: python
+
+   import urllib
+   from mpl_toolkits.basemap import Basemap
+
+   # -> http://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php
+   feed = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/"
+
+   # Significant earthquakes in the last 30 days
+   # url = urllib.request.urlopen(feed + "significant_month.csv")
+
+   # Magnitude > 4.5
+   url = urllib.request.urlopen(feed + "4.5_month.csv")
+
+   # Magnitude > 2.5
+   # url = urllib.request.urlopen(feed + "2.5_month.csv")
+
+   # Magnitude > 1.0
+   # url = urllib.request.urlopen(feed + "1.0_month.csv")
+
+   # Reading and storage of data
+   data = url.read()
+   data = data.split(b'\n')[+1:-1]
+   E = np.zeros(len(data), dtype=[('position',  float, 2),
+                                  ('magnitude', float, 1)])
+
+   for i in range(len(data)):
+       row = data[i].split(',')
+       E['position'][i] = float(row[2]),float(row[1])
+       E['magnitude'][i] = float(row[4])
+
+
+Now, we need to draw the earth on a figure to show precisely where the earthquake
+center is and to translate latitude/longitude in some coordinates matplotlib
+can handle. Fortunately, there is the `basemap
+<http://matplotlib.org/basemap/>`_ project (that tends to be replaced by the
+more complete `cartopy <http://scitools.org.uk/cartopy/>`_) that is really
+simple to install and to use. First step is to define a projection to draw the
+earth onto a screen (there exists many different projections) and we'll stick
+to the `mill` projection which is rather standard for non-specialist like me.
+       
+
+.. code:: python
+
+   fig = plt.figure(figsize=(14,10))
+   ax = plt.subplot(1,1,1)
+
+   earth = Basemap(projection='mill')
+
+
+Next, we request to draw coastline and fill continents:
+
+.. code:: python
+          
+   earth.drawcoastlines(color='0.50', linewidth=0.25)
+   earth.fillcontinents(color='0.95')
+
+The `earth` object will also be used to translate coordinates quite
+automatically. We are almost finished. Last step is to adapt the rain code and
+put some eye candy:
+
+
+.. code:: python
+
+   P = np.zeros(50, dtype=[('position', float, 2),
+                            ('size',     float, 1),
+                            ('growth',   float, 1),
+                            ('color',    float, 4)])
+   scat = ax.scatter(P['position'][:,0], P['position'][:,1], P['size'], lw=0.5,
+                     edgecolors = P['color'], facecolors='None', zorder=10)
+
+   def update(frame):
+       current = frame % len(E)
+       i = frame % len(P)
+
+       P['color'][:,3] = np.maximum(0, P['color'][:,3] - 1.0/len(P))
+       P['size'] += P['growth']
+
+       magnitude = E['magnitude'][current]
+       P['position'][i] = earth(*E['position'][current])
+       P['size'][i] = 5
+       P['growth'][i]= np.exp(magnitude) * 0.1
+
+       if magnitude < 6:
+           P['color'][i]    = 0,0,1,1
+       else:
+           P['color'][i]    = 1,0,0,1
+       scat.set_edgecolors(P['color'])
+       scat.set_facecolors(P['color']*(1,1,1,0.25))
+       scat.set_sizes(P['size'])
+       scat.set_offsets(P['position'])
+       return scat,
+
+       
+   animation = FuncAnimation(fig, update, interval=10)
+   plt.show()
+
+
+If everything went well, you should obtain something like this (with animation):
+
+.. image:: figures/earthquakes.png
+   :target: scripts/earthquakes.py
+   :width: 50%
 
    
 Other Types of Plots
@@ -919,6 +1194,135 @@ Text
 Try to do the same from scratch!
 
 Click on figure for solution.
+
+
+Beyond this tutorial
+====================
+
+Matplotlib benefits from extensive documentation as well as a large
+community of users and developpers. Here are some links of interest:
+
+Tutorials
+---------
+
+* `Pyplot tutorial <http://matplotlib.sourceforge.net/users/pyplot_tutorial.html>`_
+
+  - Introduction
+  - Controlling line properties
+  - Working with multiple figures and axes
+  - Working with text
+  - 
+
+* `Image tutorial <http://matplotlib.sourceforge.net/users/image_tutorial.html>`_
+
+  - Startup commands
+  - Importing image data into Numpy arrays
+  - Plotting numpy arrays as images
+  - 
+
+* `Text tutorial <http://matplotlib.sourceforge.net/users/index_text.html>`_
+
+  - Text introduction
+  - Basic text commands
+  - Text properties and layout
+  - Writing mathematical expressions
+  - Text rendering With LaTeX
+  - Annotating text
+  - 
+
+* `Artist tutorial <http://matplotlib.sourceforge.net/users/artists.html>`_
+
+  - Introduction
+  - Customizing your objects
+  - Object containers
+  - Figure container
+  - Axes container
+  - Axis containers
+  - Tick containers
+  - 
+
+* `Path tutorial <http://matplotlib.sourceforge.net/users/path_tutorial.html>`_
+
+  - Introduction
+  - Bézier example
+  - Compound paths
+  - 
+
+* `Transforms tutorial <http://matplotlib.sourceforge.net/users/transforms_tutorial.html>`_
+
+  - Introduction
+  - Data coordinates
+  - Axes coordinates
+  - Blended transformations
+  - Using offset transforms to create a shadow effect
+  - The transformation pipeline
+  - 
+
+
+
+Matplotlib documentation
+------------------------
+
+* `User guide <http://matplotlib.sourceforge.net/users/index.html>`_
+
+* `FAQ <http://matplotlib.sourceforge.net/faq/index.html>`_
+
+  - Installation
+  - Usage
+  - How-To
+  - Troubleshooting
+  - Environment Variables
+  - 
+
+* `Screenshots <http://matplotlib.sourceforge.net/users/screenshots.html>`_
+
+
+Code documentation
+------------------
+
+The code is fairly well documented and you can quickly access a specific
+command from within a python session:
+
+::
+
+   >>> import matplotlib.pyplot as plt
+   >>> help(plt)
+   Help on function plot in module matplotlib.pyplot:
+
+   plot(*args, **kwargs)
+      Plot lines and/or markers to the
+      :class:`~matplotlib.axes.Axes`.  *args* is a variable length
+      argument, allowing for multiple *x*, *y* pairs with an
+      optional format string.  For example, each of the following is
+      legal::
+    
+          plot(x, y)         # plot x and y using default line style and color
+          plot(x, y, 'bo')   # plot x and y using blue circle markers
+          plot(y)            # plot y using x as index array 0..N-1
+          plot(y, 'r+')      # ditto, but with red plusses
+    
+      If *x* and/or *y* is 2-dimensional, then the corresponding columns
+      will be plotted.
+      ...
+
+Galleries
+---------
+
+The `matplotlib gallery <http://matplotlib.sourceforge.net/gallery.html>`_ is
+also incredibly useful when you search how to render a given graphic. Each
+example comes with its source.
+
+A smaller gallery is also available `here <http://www.loria.fr/~rougier/coding/gallery/>`_.
+
+
+Mailing lists
+--------------
+
+Finally, there is a `user mailing list
+<https://mail.python.org/mailman/listinfo/matplotlib-users>`_ where you can
+ask for help and a `developers mailing list
+<https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ that is more
+technical.
 
 
 
