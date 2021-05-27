@@ -1,33 +1,15 @@
 ===================
-Matplotlib tutorial
+Matplotlib - An Image Can Say A Thousand Words
 ===================
 
 
 ------------------
-Nicolas P. Rougier
+A big thank to Nicolas P. Rougier 
 ------------------
 
-.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.28747.svg
-   :target: http://dx.doi.org/10.5281/zenodo.28747
-
-.. contents:: Table of Contents
-   :local:
-   :depth: 1
 
 Sources are available from
 `github <https://github.com/rougier/matplotlib-tutorial>`_
-
-All code and material is licensed under a `Creative Commons
-Attribution-ShareAlike 4.0
-<http://creativecommons.org/licenses/by-sa/4.0>`_.
-
-You can test your installation before the tutorial using the `check-installation.py <scripts/check-installation.py>`_ script.
-
-See also:
-
-* `From Python to Numpy <http://www.labri.fr/perso/nrougier/from-python-to-numpy/>`_
-* `100 Numpy exercices <https://github.com/rougier/numpy-100>`_
-* `Ten simple rules for better figures <http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
 
 
 Introduction
