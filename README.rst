@@ -33,7 +33,153 @@ arguments. Important commands are explained with interactive examples.
 
 
 
-B. OO-Method
+
+B. Function call 
+================
+
+.. image:: figures/plot.png
+   :target: `Regular Plots`_
+
+.. image:: figures/scatter.png
+   :target: `Scatter Plots`_
+
+.. image:: figures/bar.png
+   :target: `Bar Plots`_
+
+.. image:: figures/pie.png
+   :target: `Pie Charts`_
+
+Regular Plots
+-------------
+
+.. image:: figures/plot_ex.png
+   :align: right
+   :target: scripts/plot_ex.py
+
+.. admonition:: Hints
+
+   You need to use the `fill_between
+   <http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.fill_between>`_
+   command.
+
+Starting from the code below, try to reproduce the graphic on the right taking
+care of filled areas.
+
+::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+
+   n = 256
+   X = np.linspace(-np.pi,np.pi,n,endpoint=True)
+   Y = np.sin(2*X)
+
+   plt.plot (X, Y+1, color='blue', alpha=1.00)
+   plt.plot (X, Y-1, color='blue', alpha=1.00)
+   plt.show()
+
+Click on figure for solution.
+
+
+
+Scatter Plots
+-------------
+
+.. image:: figures/scatter_ex.png
+   :align: right
+   :target: scripts/scatter_ex.py
+
+.. admonition:: Hints
+
+   Color is given by angle of (X,Y).
+
+
+Starting from the code below, try to reproduce the graphic on the right taking
+care of marker size, color and transparency.
+
+::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+
+   n = 1024
+   X = np.random.normal(0,1,n)
+   Y = np.random.normal(0,1,n)
+
+   plt.scatter(X,Y)
+   plt.show()
+
+Click on figure for solution.
+
+
+
+
+Bar Plots
+---------
+
+.. image:: figures/bar_ex.png
+   :align: right
+   :target: scripts/bar_ex.py
+
+.. admonition:: Hints
+
+   You need to take care of text alignment.
+
+
+Starting from the code below, try to reproduce the graphic on the right by
+adding labels for red bars.
+
+::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+
+   n = 12
+   X = np.arange(n)
+   Y1 = (1-X/float(n)) * np.random.uniform(0.5,1.0,n)
+   Y2 = (1-X/float(n)) * np.random.uniform(0.5,1.0,n)
+
+   plt.bar(X, +Y1, facecolor='#9999ff', edgecolor='white')
+   plt.bar(X, -Y2, facecolor='#ff9999', edgecolor='white')
+
+   for x,y in zip(X,Y1):
+       plt.text(x+0.4, y+0.05, '%.2f' % y, ha='center', va= 'bottom')
+
+   plt.ylim(-1.25,+1.25)
+   plt.show()
+
+Click on figure for solution.
+
+
+
+Pie Charts
+----------
+
+.. image:: figures/pie_ex.png
+   :align: right
+   :target: scripts/pie_ex.py
+
+.. admonition:: Hints
+
+   You need to modify Z.
+
+Starting from the code below, try to reproduce the graphic on the right taking
+care of colors and slices size.
+
+::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+
+   n = 20
+   Z = np.random.uniform(0,1,n)
+   plt.pie(Z)
+   plt.show()
+
+Click on figure for solution.
+
+
+C. OO-Method
 ============
 
 Simple plot
@@ -500,153 +646,6 @@ All of these locators derive from the base class matplotlib.ticker.Locator.
 You can make your own locator deriving from it. Handling dates as ticks can be
 especially tricky. Therefore, matplotlib provides special locators in
 matplotlib.dates.
-
-
-
-C. Function call 
-================
-
-.. image:: figures/plot.png
-   :target: `Regular Plots`_
-
-.. image:: figures/scatter.png
-   :target: `Scatter Plots`_
-
-.. image:: figures/bar.png
-   :target: `Bar Plots`_
-
-.. image:: figures/pie.png
-   :target: `Pie Charts`_
-
-Regular Plots
--------------
-
-.. image:: figures/plot_ex.png
-   :align: right
-   :target: scripts/plot_ex.py
-
-.. admonition:: Hints
-
-   You need to use the `fill_between
-   <http://matplotlib.sourceforge.net/api/pyplot_api.html#matplotlib.pyplot.fill_between>`_
-   command.
-
-Starting from the code below, try to reproduce the graphic on the right taking
-care of filled areas.
-
-::
-
-   import numpy as np
-   import matplotlib.pyplot as plt
-
-   n = 256
-   X = np.linspace(-np.pi,np.pi,n,endpoint=True)
-   Y = np.sin(2*X)
-
-   plt.plot (X, Y+1, color='blue', alpha=1.00)
-   plt.plot (X, Y-1, color='blue', alpha=1.00)
-   plt.show()
-
-Click on figure for solution.
-
-
-
-Scatter Plots
--------------
-
-.. image:: figures/scatter_ex.png
-   :align: right
-   :target: scripts/scatter_ex.py
-
-.. admonition:: Hints
-
-   Color is given by angle of (X,Y).
-
-
-Starting from the code below, try to reproduce the graphic on the right taking
-care of marker size, color and transparency.
-
-::
-
-   import numpy as np
-   import matplotlib.pyplot as plt
-
-   n = 1024
-   X = np.random.normal(0,1,n)
-   Y = np.random.normal(0,1,n)
-
-   plt.scatter(X,Y)
-   plt.show()
-
-Click on figure for solution.
-
-
-
-
-Bar Plots
----------
-
-.. image:: figures/bar_ex.png
-   :align: right
-   :target: scripts/bar_ex.py
-
-.. admonition:: Hints
-
-   You need to take care of text alignment.
-
-
-Starting from the code below, try to reproduce the graphic on the right by
-adding labels for red bars.
-
-::
-
-   import numpy as np
-   import matplotlib.pyplot as plt
-
-   n = 12
-   X = np.arange(n)
-   Y1 = (1-X/float(n)) * np.random.uniform(0.5,1.0,n)
-   Y2 = (1-X/float(n)) * np.random.uniform(0.5,1.0,n)
-
-   plt.bar(X, +Y1, facecolor='#9999ff', edgecolor='white')
-   plt.bar(X, -Y2, facecolor='#ff9999', edgecolor='white')
-
-   for x,y in zip(X,Y1):
-       plt.text(x+0.4, y+0.05, '%.2f' % y, ha='center', va= 'bottom')
-
-   plt.ylim(-1.25,+1.25)
-   plt.show()
-
-Click on figure for solution.
-
-
-
-Pie Charts
-----------
-
-.. image:: figures/pie_ex.png
-   :align: right
-   :target: scripts/pie_ex.py
-
-.. admonition:: Hints
-
-   You need to modify Z.
-
-Starting from the code below, try to reproduce the graphic on the right taking
-care of colors and slices size.
-
-::
-
-   import numpy as np
-   import matplotlib.pyplot as plt
-
-   n = 20
-   Z = np.random.uniform(0,1,n)
-   plt.pie(Z)
-   plt.show()
-
-Click on figure for solution.
-
 
 
 
