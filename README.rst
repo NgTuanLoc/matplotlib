@@ -2,10 +2,12 @@
 Matplotlib - An Image Can Say A Thousand Words
 ===================
 
+.. contents:: Table of Contents
+   :local:
+   :depth: 1
 
-
-Introduction
-============
+A. Introduction
+===============
 
 matplotlib is probably the single most used Python package for 2D-graphics. It
 provides both a very quick way to visualize data from Python and
@@ -31,9 +33,11 @@ arguments. Important commands are explained with interactive examples.
 
 
 
+B. OO-Method
+============
 
 Simple plot
-===========
+-----------
 
 In this section, we want to draw the cosine and sine functions on the same
 plot. Starting from the default settings, we'll enrich the figure step by step
@@ -356,7 +360,7 @@ the data and the labels.
 
 
 Figures, Subplots, Axes and Ticks
-=================================
+----------------------------------
 
 So far we have used implicit figure and axes creation. This is handy for fast
 plots. We can have more control over the display using figure, subplot, and
@@ -499,8 +503,8 @@ matplotlib.dates.
 
 
 
-Other Types of Plots
-====================
+C. Function call 
+================
 
 .. image:: figures/plot.png
    :target: `Regular Plots`_
@@ -511,33 +515,8 @@ Other Types of Plots
 .. image:: figures/bar.png
    :target: `Bar Plots`_
 
-.. image:: figures/contour.png
-   :target: `Contour Plots`_
-
-.. image:: figures/imshow.png
-   :target: `Imshow`_
-
-.. image:: figures/quiver.png
-   :target: `Quiver Plots`_
-
 .. image:: figures/pie.png
    :target: `Pie Charts`_
-
-.. image:: figures/grid.png
-   :target: `Grids`_
-
-.. image:: figures/multiplot.png
-   :target: `Multi Plots`_
-
-.. image:: figures/polar.png
-   :target: `Polar Axis`_
-
-.. image:: figures/plot3d.png
-   :target: `3D Plots`_
-
-.. image:: figures/text.png
-   :target: `Text`_
-
 
 Regular Plots
 -------------
@@ -641,6 +620,63 @@ adding labels for red bars.
 Click on figure for solution.
 
 
+
+Pie Charts
+----------
+
+.. image:: figures/pie_ex.png
+   :align: right
+   :target: scripts/pie_ex.py
+
+.. admonition:: Hints
+
+   You need to modify Z.
+
+Starting from the code below, try to reproduce the graphic on the right taking
+care of colors and slices size.
+
+::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+
+   n = 20
+   Z = np.random.uniform(0,1,n)
+   plt.pie(Z)
+   plt.show()
+
+Click on figure for solution.
+
+
+
+
+D. Other Plot
+=============
+.. image:: figures/contour.png
+   :target: `Contour Plots`_
+
+.. image:: figures/imshow.png
+   :target: `Imshow`_
+
+.. image:: figures/quiver.png
+   :target: `Quiver Plots`_
+
+
+.. image:: figures/grid.png
+   :target: `Grids`_
+
+.. image:: figures/multiplot.png
+   :target: `Multi Plots`_
+
+.. image:: figures/polar.png
+   :target: `Polar Axis`_
+
+.. image:: figures/plot3d.png
+   :target: `3D Plots`_
+
+.. image:: figures/text.png
+   :target: `Text`_
+
 Contour Plots
 -------------
 
@@ -706,33 +742,6 @@ care of colormap, image interpolation and origin.
    y = np.linspace(-3,3,3*n)
    X,Y = np.meshgrid(x,y)
    plt.imshow(f(X,Y))
-   plt.show()
-
-Click on figure for solution.
-
-
-Pie Charts
-----------
-
-.. image:: figures/pie_ex.png
-   :align: right
-   :target: scripts/pie_ex.py
-
-.. admonition:: Hints
-
-   You need to modify Z.
-
-Starting from the code below, try to reproduce the graphic on the right taking
-care of colors and slices size.
-
-::
-
-   import numpy as np
-   import matplotlib.pyplot as plt
-
-   n = 20
-   Z = np.random.uniform(0,1,n)
-   plt.pie(Z)
    plt.show()
 
 Click on figure for solution.
@@ -913,7 +922,7 @@ Click on figure for solution.
 
 
 
-Quick references
+E.Quick references
 ================
 
 Here is a set of tables that show main properties and styles.
@@ -1538,4 +1547,3 @@ A big thank to Nicolas P. Rougier
 
 Original sources are available from
 `github <https://github.com/rougier/matplotlib-tutorial>`_
-
