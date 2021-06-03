@@ -240,8 +240,7 @@ powerful alternative.
    :target: scripts/subplot-vertical.py
 .. image:: figures/subplot-grid.png
    :target: scripts/subplot-grid.py
-.. image:: figures/gridspec.png
-   :target: scripts/gridspec.py
+
 
 
 
@@ -252,6 +251,8 @@ Axes are very similar to subplots but allow placement of plots at any location
 in the figure. So if we want to put a smaller plot inside a bigger one we do
 so with axes.
 
+.. image:: figures/gridspec.png
+   :target: scripts/gridspec.py
 .. image:: figures/axes.png
    :target: scripts/axes.py
 .. image:: figures/axes-2.png
